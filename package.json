@@ -1,0 +1,15 @@
+{
+  "name": "point-of-vue",
+  "version": "0.0.1",
+  "description": "state devtools for Vue and the Composition API",
+  "main": "index.js",
+  "repository": "https://github.com/oslabs-beta/point-of-vue",
+  "author": "Point of Vue ",
+  "contributors": [
+    "Shelby Neuman",
+    "Tony Lei",
+    "Tristen Francis",
+    "Will Robson"
+  ],
+  "license": "MIT"
+}
