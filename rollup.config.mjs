@@ -8,7 +8,7 @@ import pascalcase from 'pascalcase'
 
 import { createRequire } from 'module'
 
-const pkg = require('./package.json')
+const pkg = require(path.resolve(__dirname, 'package.json'))
 const name = pkg.name
 
 function getAuthors (pkg) {
