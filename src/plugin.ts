@@ -15,12 +15,15 @@ export function setupDevtools (app) {
     packageName: 'pointofvue',
     homepage: 'https://vuejs.org',
     app
-  }, (api) => {
-    api.addTimelineLayer({
-      id: STATE_LAYER,
-      label: 'Test Layer',
-      color: 0xe5df88
-    });
+  },
+    // The second argument of setupDevtoolsPlugin is a callback which will get the Vue Devtools API as the first argument:
+    (api) => {
+      console.log(api.getSettings());
+    // api.addTimelineLayer({
+    //   id: STATE_LAYER,
+    //   label: 'Test Layer',
+    //   color: 0xe5df88
+    // });
   })
 }
 
