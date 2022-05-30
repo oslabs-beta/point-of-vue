@@ -5,20 +5,22 @@
 // //     - Import the formatted state from our format file
 // //     - Populate our state panel with this info
 
-// // setupDevtoolsPlugin function:
-// // install package via yarn add @vue/devtools-api
-// // import {
-// //     setupDevtoolsPlugin,
-// //     TimelineEvent,
-// //     App as DevtoolsApp,
-// // } from '@vue/devtools-api'
-// import { ComponentPublicInstance, markRaw, toRaw, unref, watch } from 'vue-demi'
+// setupDevtoolsPlugin function
+import { setupDevtoolsPlugin } from '@vue/devtools-api'
 
-// export default {
-// install: (app, options) => {
-//         // plugin code goes here
-//     } yes toni
-// }...
-// is this messing everything up? even if i do it commented?
-// yes.
-// my b. 
+export function setupDevtools (app) {
+  setupDevtoolsPlugin({ 
+    id: 'point-of-vue-plugin',
+    label: 'Point of Vue',
+    packageName: 'pointofvue',
+    homepage: 'https://vuejs.org',
+    app
+  }, (api) => {
+    api.addTimelineLayer({
+      id: STATE_LAYER,
+      label: 'Test Layer',
+      color: 0xe5df88
+    });
+  })
+}
+
