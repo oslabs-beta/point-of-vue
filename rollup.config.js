@@ -10,7 +10,7 @@ import replace from '@rollup/plugin-replace';
 // `npm run dev` -> `production` is false
 // const production = !process.env.ROLLUP_WATCH;
 // || __VUE_PROD_DEVTOOLS__
-// if (process.env.NODE_ENV === 'development') {
+// if (process.env.NODE_ENV === 'development' || __VUE_PROD_DEVTOOLS__) {
 //   setupDevtools(app);
 // }
 
@@ -104,13 +104,14 @@ function createConfig(format, output, plugins = []) {
   output.externalLiveBindings = false;
   output.globals = { vue: 'Vue', '@vue/composition-api': 'vueCompositionApi' };
   output.extend = true;
-
+// output.extdent = true added after error stating point-of-vue was not a legal JS identifier
   const isProductionBuild = /\.prod\.js$/.test(output.file);
   const isGlobalBuild = format === 'global';
   const isRawESMBuild = format === 'esm';
   const isNodeBuild = format === 'cjs';
   const isBundlerESMBuild = /esm-bundler/.test(format);
-
+  // ouputname was set .namet
+  // we might possiblo invocation of pascalcase(pkg)
   if (isGlobalBuild) output.name = pkg.name;
 
   const shouldEmitDeclarations = !hasTSChecked;
