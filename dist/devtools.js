@@ -41,7 +41,7 @@ export function setupDevtools(app, data) {
         packageName: 'my-awesome-plugin',
         homepage: 'https://vuejs.org',
         componentStateTypes: [stateType],
-        app: []
+        app
     }, api => {
         devtoolsApi = api;
         api.on.inspectComponent((payload, context) => {
