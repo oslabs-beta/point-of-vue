@@ -1,8 +1,8 @@
 import { setupDevtoolsPlugin, DevtoolsPluginApi } from '@vue/devtools-api'
-import { App } from 'vue'
+// import { App } from 'vue'
 import { MyPluginData } from './data'
 
-export function setupDevtools (app: App, data: MyPluginData) {
+export function setupDevtools (app: any, data: MyPluginData) {
   const stateType: string = 'My Awesome Plugin state'
   const inspectorId = 'my-awesome-plugin'
   const timelineLayerId = 'my-awesome-plugin'
@@ -50,7 +50,7 @@ export function setupDevtools (app: App, data: MyPluginData) {
     packageName: 'my-awesome-plugin',
     homepage: 'https://vuejs.org',
     componentStateTypes: [stateType],
-    app: []
+    app
   }, api => {
     devtoolsApi = api
 
