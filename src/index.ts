@@ -2,6 +2,7 @@ import { reactive, App } from 'vue'
 import SomeComponent from '../src/SomeComponent.vue'
 import { setupDevtools } from './devtools'
 import { MyPluginData } from './data'
+import { markRaw,  } from 'vue-demi'
 
 // Our plugin
 
