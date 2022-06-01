@@ -1,5 +1,5 @@
 import { reactive } from 'vue';
-import SomeComponent from './SomeComponent.vue';
+import SomeComponent from '../src/SomeComponent.vue';
 import { setupDevtools } from './devtools';
 // Our plugin
 export default {
