@@ -1,5 +1,15 @@
 import { setupDevtoolsPlugin } from '@vue/devtools-api';
 let copyOfState = {};
+// copyOfState : {
+//   state : [ 
+//     proxy {
+//       <target> : {
+//         counter : 0,
+//         colorCode : 'blue'
+//       }
+//     }
+//   ]
+// }
 export const getCompState = (state, stateName) => {
     console.log("copyOfState:", copyOfState);
     // shallowref of state?
@@ -85,60 +95,76 @@ export function setupDevtools(app, data) {
             label: 'Point-Of-Vue!',
             icon: 'pets',
         });
+        // example app payload.rootNodes
+        // [
+        //   {
+        //     id: 'root',
+        //     label: 'Awesome root',
+        //     children: [
+        //       {
+        //         id: 'child-1',
+        //         label: 'Child 1',
+        //         tags: [
+        //           {
+        //             label: 'awesome',
+        //             textColor: 0xffffff,
+        //             backgroundColor: 0x000000
+        //           }
+        //         ]
+        //       },
+        //       {
+        //         id: 'child-2',
+        //         label: 'Child 2'
+        //       }
+        //     ]
+        //   },
+        //   {
+        //     id: 'root2',
+        //     label: 'Amazing root'
+        //   }
+        // ]
+        // copyOfState : {
+        //   state : [ 
+        //     proxy {
+        //       <target> : {
+        //         counter : 0,
+        //         colorCode : 'blue'
+        //       }
+        //     }
+        //   ]
+        // }
         api.on.getInspectorTree((payload, context) => {
             if (payload.inspectorId === inspectorId) {
-                payload.rootNodes = [
-                    {
-                        id: 'root',
-                        label: 'Awesome root',
-                        children: [
-                            {
-                                id: 'child-1',
-                                label: 'Child 1',
-                                tags: [
-                                    {
-                                        label: 'awesome',
-                                        textColor: 0xffffff,
-                                        backgroundColor: 0x000000
-                                    }
-                                ]
-                            },
-                            {
-                                id: 'child-2',
-                                label: 'Child 2'
-                            }
-                        ]
-                    },
-                    {
-                        id: 'root2',
-                        label: 'Amazing root'
-                    }
-                ];
+                payload.rootNodes = [];
+                for (const key in copyOfState) {
+                    payload.rootNodes.push({
+                        id: `${key}`,
+                        label: `${key}`
+                    });
+                }
             }
         });
+        // 'my section': [
+        //   {
+        //     key: 'cat',
+        //     value: 'meow',
+        //     editable: false,
+        //   }
+        // ]
         api.on.getInspectorState((payload, context) => {
             if (payload.inspectorId === inspectorId) {
-                if (payload.nodeId === 'child-1') {
-                    payload.state = {
-                        'my section': [
+                if (copyOfState[payload.nodeId]) {
+                    payload.state = {};
+                    const stateObj = copyOfState[payload.nodeId][0].target;
+                    for (const key in stateObj) {
+                        payload.state[key] = [
                             {
-                                key: 'cat',
-                                value: 'meow',
-                                editable: false,
+                                key: key,
+                                value: stateObj[key],
+                                editable: false
                             }
-                        ]
-                    };
-                }
-                else if (payload.nodeId === 'child-2') {
-                    payload.state = {
-                        'my section': [
-                            {
-                                key: 'dog',
-                                value: 'waf',
-                                editable: false,
-                            }
-                        ]
-                    };
+                        ];
+                    }
                 }
             }
         });
