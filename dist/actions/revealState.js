@@ -5,4 +5,17 @@
 //      - getFileOpener ??
 //      - openFile ??
 //      - actionGlobalOpenStateFile ??
-export {};
+//import { appendFile } from "fs";
+//          --computed state functions: how do we grab, separate fxn ?
+// ^^ functions Pinia used to display state
+//     - do we need all these ? Do we want to utilize the clipboard system?
+// //     - function to track changes in composition state fxns ? (  see Johannes file)
+//app.config.globalProperties.stateArray = [];
+export default {
+    // type of state needs to be proxy?
+    getCompState: (state) => {
+        const copyOfState = state;
+        console.log("copyOfState:", copyOfState);
+        return copyOfState;
+    }
+};
