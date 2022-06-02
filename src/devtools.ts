@@ -1,4 +1,6 @@
 import { setupDevtoolsPlugin, DevtoolsPluginApi } from '@vue/devtools-api'
+import { toRaw } from 'vue-demi';
+
 // import { App } from 'vue'
 import { MyPluginData } from './data'
 
@@ -16,6 +18,9 @@ let copyOfState: any = {};
 //   ]
 // }
 
+
+//copyOfState[stateName][0].target => undefined
+
 export const getCompState = (state: object, stateName: string): void => {
 
   console.log("copyOfState:", copyOfState);
@@ -24,6 +29,7 @@ export const getCompState = (state: object, stateName: string): void => {
     copyOfState[stateName] = [];
   }
   copyOfState[stateName].push(state)
+  console.log(copyOfState[stateName][0]["<target>"])
 }
 
 export function setupDevtools(app: any, data: MyPluginData) {
@@ -182,7 +188,11 @@ export function setupDevtools(app: any, data: MyPluginData) {
       if (payload.inspectorId === inspectorId) {
         if (copyOfState[payload.nodeId]) {
           payload.state = {};
-          const stateObj = copyOfState[payload.nodeId][0].target;
+          const stateObj = toRaw(copyOfState[payload.nodeId][copyOfState[payload.nodeId].length - 1]);
+          console.log('getInspectorState is running')
+          console.log('stateObj:', stateObj)
+          console.log("copyOfState[payload.nodeId][0] keys", Object.keys(copyOfState[payload.nodeId][0]))
+          console.log('toRaw:', toRaw(copyOfState[payload.nodeId][0]))
           for (const key in stateObj){
             payload.state[key] = [
               {
