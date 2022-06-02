@@ -1,4 +1,14 @@
 import { setupDevtoolsPlugin } from '@vue/devtools-api';
+// import getCompState from './actions/revealState'
+let copyOfState = {};
+export const getCompState = (state, stateName) => {
+    console.log("copyOfState:", copyOfState);
+    // shallowref of state?
+    if (!copyOfState[stateName]) {
+        copyOfState[stateName] = [];
+    }
+    copyOfState[stateName].push(state);
+};
 export function setupDevtools(app, data) {
     const stateType = 'My Awesome Plugin state';
     const inspectorId = 'my-awesome-plugin';
@@ -73,7 +83,7 @@ export function setupDevtools(app, data) {
         });
         api.addInspector({
             id: inspectorId,
-            label: 'Awesome!',
+            label: 'Point-Of-Vue!',
             icon: 'pets',
         });
         api.on.getInspectorTree((payload, context) => {
@@ -136,7 +146,7 @@ export function setupDevtools(app, data) {
         api.addTimelineLayer({
             id: timelineLayerId,
             color: 0xff984f,
-            label: 'Awesome!'
+            label: 'Point-Of-Vue'
         });
         // window.addEventListener('click', event => {
         //   api.addTimelineEvent({

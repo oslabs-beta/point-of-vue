@@ -6,6 +6,8 @@
 //      - openFile ??
 //      - actionGlobalOpenStateFile ??
 
+//import { appendFile } from "fs";
+
 //          --computed state functions: how do we grab, separate fxn ?
 
 // ^^ functions Pinia used to display state
@@ -14,4 +16,13 @@
 // //     - function to track changes in composition state fxns ? (  see Johannes file)
 
 
-export {}
+//app.config.globalProperties.stateArray = [];
+
+export default {
+  // type of state needs to be proxy?
+  getCompState : (state: object): object => {
+    const copyOfState: object = state;
+    console.log("copyOfState:", copyOfState);
+    return copyOfState;
+  }
+}

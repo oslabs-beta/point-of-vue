@@ -1,6 +1,8 @@
 import { reactive } from 'vue';
 import SomeComponent from '../src/SomeComponent.vue';
 import { setupDevtools } from './devtools';
+// import 
+// import pointofvue, {getCompState} from 'point-of-vue'
 // Our plugin
 export default {
     install(app, options = {}) {
