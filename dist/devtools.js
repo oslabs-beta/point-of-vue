@@ -1,4 +1,5 @@
 import { setupDevtoolsPlugin } from '@vue/devtools-api';
+import { toRaw } from 'vue-demi';
 let copyOfState = {};
 // copyOfState : {
 //   state : [ 
@@ -10,6 +11,7 @@ let copyOfState = {};
 //     }
 //   ]
 // }
+//copyOfState[stateName][0].target => undefined
 export const getCompState = (state, stateName) => {
     console.log("copyOfState:", copyOfState);
     // shallowref of state?
@@ -17,6 +19,7 @@ export const getCompState = (state, stateName) => {
         copyOfState[stateName] = [];
     }
     copyOfState[stateName].push(state);
+    console.log(copyOfState[stateName][0]["<target>"]);
 };
 export function setupDevtools(app, data) {
     const stateType = 'My Awesome Plugin state';
@@ -155,7 +158,11 @@ export function setupDevtools(app, data) {
             if (payload.inspectorId === inspectorId) {
                 if (copyOfState[payload.nodeId]) {
                     payload.state = {};
-                    const stateObj = copyOfState[payload.nodeId][0].target;
+                    const stateObj = toRaw(copyOfState[payload.nodeId][copyOfState[payload.nodeId].length - 1]);
+                    console.log('getInspectorState is running');
+                    console.log('stateObj:', stateObj);
+                    console.log("copyOfState[payload.nodeId][0] keys", Object.keys(copyOfState[payload.nodeId][0]));
+                    console.log('toRaw:', toRaw(copyOfState[payload.nodeId][0]));
                     for (const key in stateObj) {
                         payload.state[key] = [
                             {
