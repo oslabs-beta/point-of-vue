@@ -1,5 +1,4 @@
 import { setupDevtoolsPlugin } from '@vue/devtools-api';
-// import getCompState from './actions/revealState'
 let copyOfState = {};
 export const getCompState = (state, stateName) => {
     console.log("copyOfState:", copyOfState);
