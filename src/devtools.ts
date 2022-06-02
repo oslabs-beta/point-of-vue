@@ -1,30 +1,30 @@
 import { setupDevtoolsPlugin, DevtoolsPluginApi } from '@vue/devtools-api'
 // import { App } from 'vue'
 import { MyPluginData } from './data'
-// import getCompState from './actions/revealState'
+
 
 let copyOfState: any = {};
 
 export const getCompState = (state: object, stateName: string): void => {
-    
+
   console.log("copyOfState:", copyOfState);
   // shallowref of state?
-  if (!copyOfState[stateName]){
+  if (!copyOfState[stateName]) {
     copyOfState[stateName] = [];
   }
-  copyOfState[stateName].push(state) 
+  copyOfState[stateName].push(state)
 }
 
-export function setupDevtools (app: any, data: MyPluginData) {
+export function setupDevtools(app: any, data: MyPluginData) {
   const stateType: string = 'My Awesome Plugin state'
   const inspectorId = 'my-awesome-plugin'
   const timelineLayerId = 'my-awesome-plugin'
-  
-  
 
- 
 
-  
+
+
+
+
 
   let devtoolsApi: DevtoolsPluginApi<{}>
 

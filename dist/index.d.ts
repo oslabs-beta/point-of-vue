@@ -1,5 +1,4 @@
 import { App } from 'vue';
-declare const _default: {
-    install(app: App, options?: {}): void;
-};
-export default _default;
+import { getCompState } from './devtools';
+declare function install(app: App, options?: {}): void;
+export { getCompState, install as default };
