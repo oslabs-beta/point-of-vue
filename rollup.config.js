@@ -5,6 +5,7 @@ import path from 'path';
 import vuePlugin from 'rollup-plugin-vue';
 import ts from 'rollup-plugin-typescript2';
 import replace from '@rollup/plugin-replace';
+import path from 'path';
 
 // `npm run build` -> `production` is true
 // `npm run dev` -> `production` is false
