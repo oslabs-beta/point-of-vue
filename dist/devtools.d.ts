@@ -1,1 +1,3 @@
-export declare function setupDevtools(app: any): void;
+export declare function setupDevtools(app: any): {
+    trackStart: (label: string) => () => void;
+};
