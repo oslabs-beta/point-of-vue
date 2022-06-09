@@ -15,23 +15,9 @@
   "module": "dist/point-of-vue.mjs",
   "unpkg": "dist/point-of-vue.iife.js",
   "jsdelivr": "dist/point-of-vue.iife.js",
+  "types": "./dist/index.d.ts",
   "exports": {
-    ".": {
-      "browser": "./dist/point-of-vue.esm-browser.js",
-      "node": {
-        "import": {
-          "production": "./dist/point-of-vue.prod.cjs",
-          "development": "./dist/point-of-vue.mjs",
-          "default": "./dist/point-of-vue.mjs"
-        },
-        "require": {
-          "production": "./dist/point-of-vue.prod.cjs",
-          "development": "./dist/point-of-vue.cjs",
-          "default": "./index.js"
-        }
-      },
-      "import": "./dist/point-of-vue.mjs"
-    },
+    ".": "./dist/index.js",
     "./package.json": "./package.json",
     "./dist/*": "./dist/*"
   },

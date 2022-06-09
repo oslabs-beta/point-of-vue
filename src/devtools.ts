@@ -12,6 +12,8 @@ export const getCompState = (state: object, stateName: string): void => {
   copyOfState[stateName].push(state);
 };
 
+
+/* Plugin Functionality */
 export function setupDevtools(app: any) {
   const stateType: string = 'POV Plugin State'
   const inspectorId: string = 'point-of-vue-plugin'

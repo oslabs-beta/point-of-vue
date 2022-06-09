@@ -3,8 +3,12 @@
   * (c) 2022 
   * @license MIT
   */
-import { setupDevtoolsPlugin } from '@vue/devtools-api';
-import { toRaw } from 'vue';
+'use strict';
+
+Object.defineProperty(exports, '__esModule', { value: true });
+
+var devtoolsApi = require('@vue/devtools-api');
+var vue = require('vue');
 
 let copyOfState = {};
 const getCompState = (state, stateName) => {
@@ -19,7 +23,7 @@ function setupDevtools(app) {
     const stateType = 'POV Plugin State';
     const inspectorId = 'point-of-vue-plugin';
     const timelineLayerId = 'pov-state';
-    setupDevtoolsPlugin({
+    devtoolsApi.setupDevtoolsPlugin({
         id: 'point-of-vue-plugin',
         label: 'Point Of Vue Plugin',
         packageName: 'point-of-vue',
@@ -47,7 +51,7 @@ function setupDevtools(app) {
             if (payload.inspectorId === inspectorId) {
                 if (copyOfState[payload.nodeId]) {
                     payload.state = {};
-                    const stateObj = toRaw(copyOfState[payload.nodeId][copyOfState[payload.nodeId].length - 1]);
+                    const stateObj = vue.toRaw(copyOfState[payload.nodeId][copyOfState[payload.nodeId].length - 1]);
                     for (const key in stateObj) {
                         payload.state[key] = [
                             {
@@ -74,4 +78,5 @@ function install(app, options = {}) {
     }
 }
 
-export { install as default, getCompState };
+exports["default"] = install;
+exports.getCompState = getCompState;
