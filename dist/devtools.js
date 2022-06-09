@@ -72,6 +72,22 @@ export function setupDevtools(app) {
                 }
             }
         });
+        api.on.inspectComponent((payload, context) => {
+            const stateArr = payload.instanceData.state;
+            stateArr.forEach(obj => {
+                if (obj.type === 'provided') {
+                    const valArr = Object.values(obj.value);
+                    const keyArr = Object.keys(obj.value);
+                    for (let i = 0; i < valArr.length; i++) {
+                        const types = Object.values(valArr[i]).map(el => typeof el);
+                        if (!types.includes('function')) {
+                            copyOfState[keyArr[i]] = [toRaw(valArr[i])];
+                            console.log('copy of state', copyOfState);
+                        }
+                    }
+                }
+            });
+        });
         api.addTimelineLayer({
             id: timelineLayerId,
             color: 0xff984f,
