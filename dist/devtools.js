@@ -1,51 +1,29 @@
 import { setupDevtoolsPlugin } from '@vue/devtools-api';
 import { toRaw } from 'vue-demi';
 let copyOfState = {};
-export function setupDevtools(app, data) {
-    const stateType = 'My Awesome Plugin state';
-    const inspectorId = 'my-awesome-plugin';
-    const timelineLayerId = 'my-awesome-plugin';
-    let devtoolsApi;
-    let trackId = 0;
-    const devtools = {
-        trackStart: (label) => {
-            const groupId = 'track' + trackId++;
-            devtoolsApi.addTimelineEvent({
-                layerId: timelineLayerId,
-                event: {
-                    time: Date.now(),
-                    data: {
-                        label
-                    },
-                    title: label,
-                    groupId
-                }
-            });
-            return () => {
-                devtoolsApi.addTimelineEvent({
-                    layerId: timelineLayerId,
-                    event: {
-                        time: Date.now(),
-                        data: {
-                            label,
-                            done: true
-                        },
-                        title: label,
-                        groupId
-                    }
-                });
-            };
-        }
-    };
+export const getCompState = (state, stateName) => {
+    console.log("copyOfState:", copyOfState);
+    if (!copyOfState[stateName]) {
+        copyOfState[stateName] = [];
+    }
+    ;
+    copyOfState[stateName].push(state);
+};
+/* Plugin Functionality */
+export function setupDevtools(app) {
+    const stateType = 'POV Plugin State';
+    const inspectorId = 'point-of-vue-plugin';
+    const timelineLayerId = 'pov-state';
     setupDevtoolsPlugin({
-        id: 'my-awesome-devtools-plugin',
-        label: 'My Awesome Plugin',
-        packageName: 'my-awesome-plugin',
+        id: 'point-of-vue-plugin',
+        label: 'Point Of Vue Plugin',
+        packageName: 'point-of-vue',
         homepage: 'https://vuejs.org',
         componentStateTypes: [stateType],
         enableEarlyProxy: true,
         app
     }, api => {
+<<<<<<< HEAD
         devtoolsApi = api;
         // console.log('api', api.on.getInspectorState);
         api.on.inspectComponent((payload, context) => {
@@ -86,6 +64,8 @@ export function setupDevtools(app, data) {
                 });
             }
         });
+=======
+>>>>>>> d01fdaf5c628e4ea44dbcf5ec50892de0fc98ff8
         api.addInspector({
             id: inspectorId,
             label: 'Point-Of-Vue!',
@@ -102,16 +82,23 @@ export function setupDevtools(app, data) {
                 }
             }
         });
+<<<<<<< HEAD
         api.on.getInspectorState((payload, context) => {
             // console.log('copyofstate 204', copyOfState)
+=======
+        api.on.getInspectorState((payload) => {
+>>>>>>> d01fdaf5c628e4ea44dbcf5ec50892de0fc98ff8
             if (payload.inspectorId === inspectorId) {
                 if (copyOfState[payload.nodeId]) {
                     payload.state = {};
                     const stateObj = toRaw(copyOfState[payload.nodeId][copyOfState[payload.nodeId].length - 1]);
+<<<<<<< HEAD
                     // console.log('getInspectorState is running')
                     // console.log('stateObj:', stateObj)
                     // console.log("copyOfState[payload.nodeId][0] keys", Object.keys(copyOfState[payload.nodeId][0]))
                     // console.log('toRaw:', toRaw(copyOfState[payload.nodeId][0]))
+=======
+>>>>>>> d01fdaf5c628e4ea44dbcf5ec50892de0fc98ff8
                     for (const key in stateObj) {
                         payload.state[key] = [
                             {
@@ -129,54 +116,6 @@ export function setupDevtools(app, data) {
             color: 0xff984f,
             label: 'Point-Of-Vue'
         });
-        // window.addEventListener('click', event => {
-        //   api.addTimelineEvent({
-        //     layerId: timelineLayerId,
-        //     event: {
-        //       time: Date.now(),
-        //       data: {
-        //         mouseX: event.clientX,
-        //         mouseY: event.clientY
-        //       }
-        //     }
-        //   })
-        // })
-        window.addEventListener('click', event => {
-            const groupId = 'group-1';
-            devtoolsApi.addTimelineEvent({
-                layerId: timelineLayerId,
-                event: {
-                    time: Date.now(),
-                    data: {
-                        label: 'group test'
-                    },
-                    title: 'group test',
-                    groupId
-                }
-            });
-            devtoolsApi.addTimelineEvent({
-                layerId: timelineLayerId,
-                event: {
-                    time: Date.now() + 10,
-                    data: {
-                        label: 'group test (event 2)',
-                    },
-                    title: 'group test',
-                    groupId
-                }
-            });
-            devtoolsApi.addTimelineEvent({
-                layerId: timelineLayerId,
-                event: {
-                    time: Date.now() + 20,
-                    data: {
-                        label: 'group test (event 3)',
-                    },
-                    title: 'group test',
-                    groupId
-                }
-            });
-        });
     });
-    return devtools;
 }
+;
