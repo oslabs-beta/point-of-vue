@@ -1,10 +1,11 @@
 import resolve from '@rollup/plugin-node-resolve';
 import commonjs from '@rollup/plugin-commonjs';
 // import { terser } from 'rollup-plugin-terser';
-import path from 'path';
+// import path from 'path';
 import vuePlugin from 'rollup-plugin-vue';
 import ts from 'rollup-plugin-typescript2';
 import replace from '@rollup/plugin-replace';
+import path from 'path';
 
 // `npm run build` -> `production` is true
 // `npm run dev` -> `production` is false
@@ -142,7 +143,7 @@ function createConfig(format, output, plugins = []) {
   const nodePlugins = [resolve(), commonjs()];
 
   return {
-    input: 'src/main.js',
+    input: 'src/index.ts',
     // Global and Browser ESM builds inlines everything so that they can be
     // used alone.
     external,
