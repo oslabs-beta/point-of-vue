@@ -1,47 +1,14 @@
 import { setupDevtoolsPlugin, DevtoolsPluginApi } from '@vue/devtools-api'
 import { toRaw } from 'vue-demi';
-
 // import { App } from 'vue'
 import { MyPluginData } from './data'
 
-
 let copyOfState: any = {};
-
-// copyOfState : {
-//   state : [ 
-//     proxy {
-//       <target> : {
-//         counter : 0,
-//         colorCode : 'blue'
-//       }
-//     }
-//   ]
-// }
-
-
-//copyOfState[stateName][0].target => undefined
-
-export const getCompState = (state: object, stateName: string): void => {
-
-  console.log("copyOfState:", copyOfState);
-  // shallowref of state?
-  if (!copyOfState[stateName]) {
-    copyOfState[stateName] = [];
-  }
-  copyOfState[stateName].push(state)
-  console.log(copyOfState[stateName][0]["<target>"])
-}
 
 export function setupDevtools(app: any, data: MyPluginData) {
   const stateType: string = 'My Awesome Plugin state'
   const inspectorId = 'my-awesome-plugin'
   const timelineLayerId = 'my-awesome-plugin'
-
-
-
-
-
-
 
   let devtoolsApi: DevtoolsPluginApi<{}>
 
@@ -86,9 +53,13 @@ export function setupDevtools(app: any, data: MyPluginData) {
     packageName: 'my-awesome-plugin',
     homepage: 'https://vuejs.org',
     componentStateTypes: [stateType],
+    enableEarlyProxy: true,
     app
   }, api => {
     devtoolsApi = api
+
+
+    // console.log('api', api.on.getInspectorState);
 
     api.on.inspectComponent((payload, context) => {
       payload.instanceData.state.push({
@@ -97,20 +68,33 @@ export function setupDevtools(app: any, data: MyPluginData) {
         value: data.message,
         editable: false
       })
-
-      payload.instanceData.state.push({
-        type: stateType,
-        key: 'time counter',
-        value: data.counter,
-        editable: false
-      })
+      // console.log('payload inspect comp', payload)
+    
+      const stateArr = payload.instanceData.state
+      // console.log('api on get inspector state', api.on.getInspectorState)
+  
+    stateArr.forEach(obj => {
+      if (obj.type === 'provided') {
+        const valArr: object[] = Object.values(obj.value);
+        const keyArr: string[] = Object.keys(obj.value);
+        for (let i = 0; i < valArr.length; i++){
+          const types: string[] = Object.values(valArr[i]).map(el => typeof el)
+          if (!types.includes('function')) {
+            copyOfState[keyArr[i]] = [toRaw(valArr[i])];
+            console.log('copy of state', copyOfState)
+            }
+        }
+      }
     })
+      
+  })
 
     setInterval(() => {
       api.notifyComponentUpdate()
-    }, 5000)
+    }, 50)
 
     api.on.visitComponentTree((payload, context) => {
+      // console.log('payload visit comp tree', payload)
       const node = payload.treeNode
       if (payload.componentInstance.type.meow) {
         node.tags.push({
@@ -126,46 +110,7 @@ export function setupDevtools(app: any, data: MyPluginData) {
       label: 'Point-Of-Vue!',
       icon: 'pets',
     })
-    // example app payload.rootNodes
-    // [
-    //   {
-    //     id: 'root',
-    //     label: 'Awesome root',
-    //     children: [
-    //       {
-    //         id: 'child-1',
-    //         label: 'Child 1',
-    //         tags: [
-    //           {
-    //             label: 'awesome',
-    //             textColor: 0xffffff,
-    //             backgroundColor: 0x000000
-    //           }
-    //         ]
-    //       },
-    //       {
-    //         id: 'child-2',
-    //         label: 'Child 2'
-    //       }
-    //     ]
-    //   },
-    //   {
-    //     id: 'root2',
-    //     label: 'Amazing root'
-    //   }
-    // ]
-
-    // copyOfState : {
-//   state : [ 
-//     proxy {
-//       <target> : {
-//         counter : 0,
-//         colorCode : 'blue'
-//       }
-//     }
-//   ]
-// }
-
+  
     api.on.getInspectorTree((payload, context) => {
       if (payload.inspectorId === inspectorId) {
         payload.rootNodes = [];
@@ -177,22 +122,18 @@ export function setupDevtools(app: any, data: MyPluginData) {
         }
       }
     })
-    // 'my section': [
-    //   {
-    //     key: 'cat',
-    //     value: 'meow',
-    //     editable: false,
-    //   }
-    // ]
+   
+
     api.on.getInspectorState((payload, context) => {
+      // console.log('copyofstate 204', copyOfState)
       if (payload.inspectorId === inspectorId) {
         if (copyOfState[payload.nodeId]) {
           payload.state = {};
           const stateObj = toRaw(copyOfState[payload.nodeId][copyOfState[payload.nodeId].length - 1]);
-          console.log('getInspectorState is running')
-          console.log('stateObj:', stateObj)
-          console.log("copyOfState[payload.nodeId][0] keys", Object.keys(copyOfState[payload.nodeId][0]))
-          console.log('toRaw:', toRaw(copyOfState[payload.nodeId][0]))
+          // console.log('getInspectorState is running')
+          // console.log('stateObj:', stateObj)
+          // console.log("copyOfState[payload.nodeId][0] keys", Object.keys(copyOfState[payload.nodeId][0]))
+          // console.log('toRaw:', toRaw(copyOfState[payload.nodeId][0]))
           for (const key in stateObj){
             payload.state[key] = [
               {

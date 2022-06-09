@@ -1,9 +1,6 @@
 import { reactive } from 'vue';
 import SomeComponent from '../src/SomeComponent.vue';
-import { setupDevtools, getCompState } from './devtools';
-// import 
-// import pointofvue, {getCompState} from 'point-of-vue'
-// Our plugin
+import { setupDevtools } from './devtools';
 function install(app, options = {}) {
     const data = reactive({
         message: 'hello',
@@ -38,4 +35,4 @@ function install(app, options = {}) {
         devtools = setupDevtools(app, data);
     }
 }
-export { getCompState, install as default };
+export { install as default };

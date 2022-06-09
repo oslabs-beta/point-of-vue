@@ -1,14 +1,7 @@
 import { reactive, App } from 'vue'
 import SomeComponent from '../src/SomeComponent.vue'
-import { setupDevtools, getCompState } from './devtools'
+import { setupDevtools } from './devtools'
 import { MyPluginData } from './data'
-// import 
-
-
-// import pointofvue, {getCompState} from 'point-of-vue'
-// Our plugin
-
-
 
 
 function install(app: App, options = {}) {
@@ -51,6 +44,5 @@ function install(app: App, options = {}) {
   }
 }
 export {
-  getCompState,
   install as default
 }
