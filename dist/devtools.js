@@ -1,21 +1,26 @@
 import { setupDevtoolsPlugin } from '@vue/devtools-api';
-import { toRaw } from 'vue-demi';
+//import { toRaw } from 'vue-demi';
 import deepCopy from './deepCopy';
-let copyOfState = {};
-// export const getCompState = (state: object, stateName: string): void => {
-//   console.log("copyOfState:", copyOfState);
-//   if (!copyOfState[stateName]) {
-//     copyOfState[stateName] = [];
-//   };
-//   copyOfState[stateName].push(state);
-// };
 /* Plugin Functionality */
 export function setupDevtools(app) {
     const stateType = 'POV Plugin State';
     const inspectorId = 'point-of-vue-plugin';
     const timelineLayerId = 'pov-state';
+    let copyOfState = {};
     let devtoolsApi;
     let trackId = 0;
+    const groupId = 'group-1';
+    let eventCounter = 1;
+    const getEventState = (index) => {
+        const eventState = {};
+        for (const key in copyOfState) {
+            console.log("copyOfState from getEventState:", copyOfState);
+            console.log("copyOfState[key]:", copyOfState[key][index]);
+            eventState[key] = deepCopy(copyOfState[key][index]);
+        }
+        console.log("eventState:", eventState);
+        return eventState;
+    };
     const devtools = {
         trackStart: (label) => {
             const groupId = 'track' + trackId++;
@@ -78,13 +83,13 @@ export function setupDevtools(app) {
             if (payload.inspectorId === inspectorId) {
                 if (copyOfState[payload.nodeId]) {
                     payload.state = {};
-                    const stateObj = toRaw(copyOfState[payload.nodeId][copyOfState[payload.nodeId].length - 1]);
+                    const stateObj = copyOfState[payload.nodeId][copyOfState[payload.nodeId].length - 1];
                     for (const key in stateObj) {
                         payload.state[key] = [
                             {
                                 key: key,
                                 value: stateObj[key],
-                                editable: false
+                                editable: true
                             }
                         ];
                     }
@@ -107,62 +112,56 @@ export function setupDevtools(app) {
                         const types = Object.values(valArr[i]).map(el => typeof el);
                         if (!types.includes('function')) {
                             copyOfState[keyArr[i]] = [deepCopy(valArr[i])];
+                            console.log('copy of state', copyOfState);
                             window.addEventListener('click', event => {
                                 copyOfState[keyArr[i]].push(deepCopy(valArr[i]));
                                 console.log("copyOfState:", copyOfState);
+                                console.log("added copy of state");
+                                const groupId = 'group-1';
+                                devtoolsApi.addTimelineEvent({
+                                    layerId: timelineLayerId,
+                                    event: {
+                                        time: Date.now(),
+                                        data: getEventState(eventCounter),
+                                        title: `event ${eventCounter}`,
+                                        groupId
+                                    }
+                                });
+                                console.log("added timeline event");
+                                eventCounter += 1;
                             });
                             window.addEventListener('keyup', event => {
                                 copyOfState[keyArr[i]].push(deepCopy(valArr[i]));
                                 console.log("copyOfState:", copyOfState);
+                                devtoolsApi.addTimelineEvent({
+                                    layerId: timelineLayerId,
+                                    event: {
+                                        time: Date.now(),
+                                        data: getEventState(eventCounter),
+                                        title: `event ${eventCounter}`,
+                                        groupId
+                                    }
+                                });
+                                eventCounter += 1;
                             });
-                            console.log('copy of state', copyOfState);
+                            devtoolsApi.addTimelineEvent({
+                                layerId: timelineLayerId,
+                                event: {
+                                    time: Date.now(),
+                                    data: getEventState(0),
+                                    title: `Default State`,
+                                    groupId
+                                }
+                            });
                         }
                     }
                 }
             });
-            // window.addEventListener('keyup', event => {
-            //   copyOfState[stateName].push(deepCopy(state));
-            //   console.log("copyOfState:", copyOfState)
-            // })
         });
         api.addTimelineLayer({
             id: timelineLayerId,
             color: 0xff984f,
             label: 'Point-Of-Vue'
-        });
-        let eventCounter = 1;
-        const getEventState = (index) => {
-            const eventState = {};
-            for (const key in copyOfState) {
-                eventState[key] = copyOfState[key][index];
-            }
-            return eventState;
-        };
-        window.addEventListener('click', event => {
-            const groupId = 'group-1';
-            devtoolsApi.addTimelineEvent({
-                layerId: timelineLayerId,
-                event: {
-                    time: Date.now(),
-                    data: getEventState(eventCounter),
-                    title: `event ${eventCounter}`,
-                    groupId
-                }
-            });
-            eventCounter += 1;
-        });
-        window.addEventListener('keyup', event => {
-            const groupId = 'group-1';
-            devtoolsApi.addTimelineEvent({
-                layerId: timelineLayerId,
-                event: {
-                    time: Date.now(),
-                    data: getEventState(eventCounter),
-                    title: `event ${eventCounter}`,
-                    groupId
-                }
-            });
-            eventCounter += 1;
         });
     });
     return devtools;

@@ -2,8 +2,9 @@
     "include": [
         "src/global.d.ts",
         "src/**/*.ts",
-        "__tests__/**/*.ts"
-, "src/index.ts"    ],
+        "__tests__/**/*.ts",
+         "src/index.ts"    
+        ],
     "compilerOptions": {
         "outDir": "dist",
         "sourceMap": false,
