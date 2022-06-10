@@ -1,17 +1,7 @@
 import { setupDevtoolsPlugin, DevtoolsPluginApi } from '@vue/devtools-api'
-import { toRaw } from 'vue-demi';
+//import { toRaw } from 'vue-demi';
 import deepCopy from './deepCopy'
 
-let copyOfState: any = {};
-
-// export const getCompState = (state: object, stateName: string): void => {
-//   console.log("copyOfState:", copyOfState);
-  
-//   if (!copyOfState[stateName]) {
-//     copyOfState[stateName] = [];
-//   };
-//   copyOfState[stateName].push(state);
-// };
 
 
 /* Plugin Functionality */
@@ -19,10 +9,25 @@ export function setupDevtools(app: any) {
   const stateType: string = 'POV Plugin State'
   const inspectorId: string = 'point-of-vue-plugin'
   const timelineLayerId: string = 'pov-state'
-
+  let copyOfState: any = {};
   let devtoolsApi: DevtoolsPluginApi<{}>
 
   let trackId = 0
+
+  const groupId = 'group-1'
+
+  let eventCounter: any = 1;
+
+  const getEventState = (index: number) => {
+    const eventState: any = {};
+    for (const key in copyOfState){
+      console.log("copyOfState from getEventState:", copyOfState)
+      console.log("copyOfState[key]:", copyOfState[key][index])
+      eventState[key] = deepCopy(copyOfState[key][index]);
+    }
+    console.log("eventState:", eventState)
+    return eventState;
+  }
 
   const devtools = {
     trackStart: (label: string) => {
@@ -94,14 +99,14 @@ export function setupDevtools(app: any) {
       if (payload.inspectorId === inspectorId) {
         if (copyOfState[payload.nodeId]) {
           payload.state = {};
-          const stateObj = toRaw(copyOfState[payload.nodeId][copyOfState[payload.nodeId].length - 1]);
+          const stateObj = copyOfState[payload.nodeId][copyOfState[payload.nodeId].length - 1];
           
           for (const key in stateObj){
             payload.state[key] = [
               {
               key: key,
               value: stateObj[key],
-              editable: false
+              editable: true
               }
             ]
           }
@@ -112,6 +117,7 @@ export function setupDevtools(app: any) {
     setInterval(() => {
       api.sendInspectorTree(inspectorId)
     }, 500)
+
     // let stateArr
     api.on.inspectComponent((payload, context) => {
       //console.log("inspectComponent payload:", payload)
@@ -125,25 +131,58 @@ export function setupDevtools(app: any) {
             const types: string[] = Object.values(valArr[i]).map(el => typeof el)
             if (!types.includes('function')) {
               copyOfState[keyArr[i]] = [deepCopy(valArr[i])];
-              window.addEventListener('click', event => {
-                copyOfState[keyArr[i]].push(deepCopy(valArr[i]));
-                console.log("copyOfState:", copyOfState);
-              });
-              window.addEventListener('keyup', event => {
-                copyOfState[keyArr[i]].push(deepCopy(valArr[i]));
-                console.log("copyOfState:", copyOfState);
-              });
               console.log('copy of state', copyOfState)
-              }
+
+              window.addEventListener('click', event => {
+
+                copyOfState[keyArr[i]].push(deepCopy(valArr[i]));
+                console.log("copyOfState:", copyOfState);
+                console.log("added copy of state");
+                const groupId = 'group-1'
+
+                devtoolsApi.addTimelineEvent({
+                  layerId: timelineLayerId,
+                  event: {
+                    time: Date.now(),
+                    data: getEventState(eventCounter),
+                    title: `event ${eventCounter}`,
+                    groupId
+                  }
+                })
+                console.log("added timeline event")
+                eventCounter += 1;
+              });
+
+              window.addEventListener('keyup', event => {
+                
+                copyOfState[keyArr[i]].push(deepCopy(valArr[i]));
+                console.log("copyOfState:", copyOfState);
+                
+
+                devtoolsApi.addTimelineEvent({
+                  layerId: timelineLayerId,
+                  event: {
+                    time: Date.now(),
+                    data: getEventState(eventCounter),
+                    title: `event ${eventCounter}`,
+                    groupId
+                  }
+                })
+                eventCounter += 1;
+              });
+              devtoolsApi.addTimelineEvent({
+                layerId: timelineLayerId,
+                event: {
+                  time: Date.now(),
+                  data: getEventState(0),
+                  title: `Default State`,
+                  groupId
+                }
+              })
+            }
           }
         }
       })
-      
-    
-      // window.addEventListener('keyup', event => {
-      //   copyOfState[stateName].push(deepCopy(state));
-      //   console.log("copyOfState:", copyOfState)
-      // })
     })
 
     api.addTimelineLayer({
@@ -152,44 +191,6 @@ export function setupDevtools(app: any) {
       label: 'Point-Of-Vue'
     })
 
-    let eventCounter: any = 1;
-
-    const getEventState = (index: number) => {
-      const eventState: any = {};
-      for (const key in copyOfState){
-        eventState[key] = copyOfState[key][index];
-      }
-      return eventState;
-    }
-    window.addEventListener('click', event => {
-      const groupId = 'group-1'
-
-      devtoolsApi.addTimelineEvent({
-        layerId: timelineLayerId,
-        event: {
-          time: Date.now(),
-          data: getEventState(eventCounter),
-          title: `event ${eventCounter}`,
-          groupId
-        }
-      })
-      eventCounter += 1;
-    });
-
-    window.addEventListener('keyup', event => {
-      const groupId = 'group-1'
-
-      devtoolsApi.addTimelineEvent({
-        layerId: timelineLayerId,
-        event: {
-          time: Date.now(),
-          data: getEventState(eventCounter),
-          title: `event ${eventCounter}`,
-          groupId
-        }
-      })
-      eventCounter += 1;
-    })
   })
 
   return devtools
