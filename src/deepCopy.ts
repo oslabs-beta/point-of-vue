@@ -1,4 +1,3 @@
-
 const deepCopy = (input: any ): any => {
   //declare result
   let result: any;
