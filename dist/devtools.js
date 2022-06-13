@@ -142,7 +142,7 @@ export function setupDevtools(app) {
         api.addInspector({
             id: inspectorId,
             label: 'Point-Of-Vue!',
-            icon: 'visibility',
+            icon: 'visibility'
         });
         api.on.getInspectorTree((payload, context) => {
             //console.log("getInspectorTree payload:", payload)
