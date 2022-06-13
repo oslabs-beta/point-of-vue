@@ -23,7 +23,7 @@ const deepCopy = (input: any ): any => {
   } else {
     return input;
   }  
-  return result;        
+  return result;
 }
 
 export { deepCopy as default }
