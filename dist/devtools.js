@@ -1,7 +1,13 @@
 import { setupDevtoolsPlugin } from '@vue/devtools-api';
-//import { toRaw } from 'vue-demi';
 import deepCopy from './deepCopy';
-//  import { onMounted } from 'vue'
+/* Debounce function */
+const debounce = (fn, timeout = 500) => {
+    let timer;
+    return (...args) => {
+        clearTimeout(timer);
+        timer = setTimeout(() => { fn.apply(this, args); }, timeout);
+    };
+};
 /* Plugin Functionality */
 export function setupDevtools(app) {
     const stateType = 'POV Plugin State';
@@ -13,6 +19,7 @@ export function setupDevtools(app) {
     let trackId = 0;
     const groupId = 'group-1';
     let eventCounter = 1;
+    /* Creates a deepy copy of current state and pushes to copyOfState in order to remove reference in memory */
     const currentToCopy = (current, copy) => {
         const temp = deepCopy(current);
         for (const key in temp) {
@@ -22,16 +29,15 @@ export function setupDevtools(app) {
             copy[key].push(temp[key]);
         }
     };
+    /* Pulls corresponding copy of state and assigns it to the event in the timeline */
     const getEventState = (index) => {
         const eventState = {};
         for (const key in copyOfState) {
-            //console.log("copyOfState from getEventState:", copyOfState)
-            //console.log("copyOfState[key]:", copyOfState[key][index])
             eventState[key] = deepCopy(copyOfState[key][index]);
         }
-        //console.log("eventState:", eventState)
         return eventState;
     };
+    /* Grabs the state of the application from the devtools api */
     const getCompState = () => {
         let hasBeenCalled = false;
         const inner = (stateArr) => {
@@ -40,9 +46,6 @@ export function setupDevtools(app) {
                 stateArr.forEach((obj) => {
                     if (obj.type === 'provided') {
                         currentState[obj.key] = {};
-                        //const valArr: object[] = Object.values(obj.value);
-                        //const keyArr: string[] = Object.keys(obj.value);
-                        //for (let i = 0; i < valArr.length; i++){
                         for (const property in obj.value) {
                             const types = Object.values(obj.value[property]).map(el => typeof el);
                             if (!types.includes('function')) {
@@ -57,11 +60,9 @@ export function setupDevtools(app) {
                     }
                 });
                 currentToCopy(currentState, copyOfState);
-                console.log("copyOfState:", copyOfState);
-                window.addEventListener('click', event => {
+                // application changes triger new deep copy of state to be pushed into timeline
+                window.addEventListener('click', () => {
                     currentToCopy(currentState, copyOfState);
-                    console.log("copyOfState:", copyOfState);
-                    //console.log("added copy of state");
                     const groupId = 'group-1';
                     devtoolsApi.addTimelineEvent({
                         layerId: timelineLayerId,
@@ -72,13 +73,12 @@ export function setupDevtools(app) {
                             groupId
                         }
                     });
-                    console.log("added timeline event");
                     eventCounter += 1;
                 });
                 // add debounce
-                window.addEventListener('keyup', event => {
+                window.addEventListener('keyup', debounce(() => {
                     currentToCopy(currentState, copyOfState);
-                    console.log("copyOfState:", copyOfState);
+                    console.log('copyOfState:', copyOfState);
                     devtoolsApi.addTimelineEvent({
                         layerId: timelineLayerId,
                         event: {
@@ -89,7 +89,7 @@ export function setupDevtools(app) {
                         }
                     });
                     eventCounter += 1;
-                });
+                }));
                 devtoolsApi.addTimelineEvent({
                     layerId: timelineLayerId,
                     event: {
@@ -102,7 +102,6 @@ export function setupDevtools(app) {
             }
         };
         return inner;
-        //}
     };
     const inspectComponentToInspectorState = getCompState();
     const devtools = {
@@ -148,11 +147,9 @@ export function setupDevtools(app) {
         api.addInspector({
             id: inspectorId,
             label: 'Point-Of-Vue!',
-            icon: 'visibility'
+            icon: 'visibility',
         });
-        //window.__vdevtools_ctx.currentTab = 'components';
         api.on.getInspectorTree((payload, context) => {
-            //console.log("getInspectorTree payload:", payload)
             if (payload.inspectorId === inspectorId) {
                 payload.rootNodes = [];
                 for (const key in currentState) {
@@ -164,12 +161,9 @@ export function setupDevtools(app) {
             }
         });
         api.on.getInspectorState((payload) => {
-            //console.log('payload', payload)
-            //console.log('window', window)
             if (payload.inspectorId === inspectorId) {
                 if (currentState[payload.nodeId]) {
                     payload.state = {};
-                    //const stateObj = copyOfState[payload.nodeId][copyOfState[payload.nodeId].length - 1];
                     for (const key in currentState[payload.nodeId]) {
                         payload.state[key] = [];
                         for (const prop in currentState[payload.nodeId][key])
@@ -179,24 +173,17 @@ export function setupDevtools(app) {
                                 editable: true
                             });
                     }
-                    //console.log('payload.state', payload.state)
                 }
             }
         });
         setInterval(() => {
             api.sendInspectorTree(inspectorId);
         }, 500);
-        //set: (object, path = arrayPath, value = state.value, cb) => 
-        //  this.stateEditor.set(object, path, value, cb || this.stateEditor.createDefaultSetCallback(state))
-        //});
         api.on.editInspectorState(payload => {
             if (payload.inspectorId === inspectorId) {
                 if (currentState[payload.nodeId]) {
-                    console.log('editInspectorStatepayload', payload);
-                    console.log(currentState[payload.nodeId]);
                     currentState[payload.nodeId][payload.type][payload.path.toString()] = payload.state.value;
                     currentToCopy(currentState, copyOfState);
-                    console.log("copyOfState:", copyOfState);
                     devtoolsApi.addTimelineEvent({
                         layerId: timelineLayerId,
                         event: {
@@ -212,8 +199,6 @@ export function setupDevtools(app) {
         });
         //onMounted()
         api.on.inspectComponent((payload, context) => {
-            //console.log('window', window.__vdevtools_ctx);
-            console.log("inspectComponent payload:", payload.instanceData.state);
             inspectComponentToInspectorState(payload.instanceData.state);
         });
         api.addTimelineLayer({

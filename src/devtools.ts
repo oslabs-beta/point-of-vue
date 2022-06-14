@@ -1,6 +1,15 @@
 import { setupDevtoolsPlugin, DevtoolsPluginApi } from '@vue/devtools-api'
 import deepCopy from './deepCopy'
 
+  /* Debounce function */
+  const debounce = (fn:Function, timeout:number = 500) => {
+    let timer:any;
+  
+    return (...args:any):void => {
+      clearTimeout(timer);
+      timer = setTimeout(() => { fn.apply(this, args);}, timeout);
+    };
+  };
 
 /* Plugin Functionality */
 export function setupDevtools(app: any) {
@@ -36,7 +45,7 @@ export function setupDevtools(app: any) {
       eventState[key] = deepCopy(copyOfState[key][index]);
     }
     return eventState;
-  }
+  };
 
   /* Grabs the state of the application from the devtools api */
   const getCompState = (): Function => {
@@ -62,7 +71,7 @@ export function setupDevtools(app: any) {
         currentToCopy(currentState, copyOfState);
 
         // application changes triger new deep copy of state to be pushed into timeline
-        window.addEventListener('click', event => {
+        window.addEventListener('click', () => {
 
           currentToCopy(currentState, copyOfState);
           const groupId = 'group-1'
@@ -79,10 +88,11 @@ export function setupDevtools(app: any) {
           eventCounter += 1;
         });
         // add debounce
-        window.addEventListener('keyup', event => {
-          
-          currentToCopy(currentState, copyOfState);
+        window.addEventListener('keyup', debounce(() => {
 
+          currentToCopy(currentState, copyOfState);
+          console.log('copyOfState:', copyOfState);
+          
           devtoolsApi.addTimelineEvent({
             layerId: timelineLayerId,
             event: {
@@ -93,7 +103,7 @@ export function setupDevtools(app: any) {
             }
           })
           eventCounter += 1;
-        });
+        }));
 
         devtoolsApi.addTimelineEvent({
           layerId: timelineLayerId,
@@ -161,7 +171,6 @@ export function setupDevtools(app: any) {
     api.addInspector({
       id: inspectorId,
       label: 'Point-Of-Vue!',
-
       icon: 'visibility',
     }, )
 
