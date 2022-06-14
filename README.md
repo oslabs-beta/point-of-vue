@@ -1,4 +1,6 @@
-![pov-header](./assests/pov-header.png)
+<p align="center">
+  <img src="./assests/pov-header.png">
+</p>
 
 **Point-of-Vue is a Vue Devtool Plugin which brings advanced state debugging tools to the native Vue Composition API. Learn more about Point-of-Vue through our [Medium]() article**.
 
