@@ -49,16 +49,16 @@ export function setupDevtools(app) {
                         for (const property in obj.value) {
                             const types = Object.values(obj.value[property]).map(el => typeof el);
                             if (!types.includes('function')) {
-                                if (obj.value[property].__v_isRef === true) {
-                                    currentState[obj.key][property] = obj.value[property].value;
-                                }
-                                else {
-                                    currentState[obj.key][property] = obj.value[property];
-                                }
+                                // if(obj.value[property].__v_isRef === true){
+                                //   console.log(obj.value[property])
+                                //   currentState[obj.key][property] = obj.value[property]._value
+                                // }else{
+                                currentState[obj.key][property] = obj.value[property];
                             }
                         }
                     }
                 });
+                console.log("currentState:", currentState);
                 currentToCopy(currentState, copyOfState);
                 // application changes triger new deep copy of state to be pushed into timeline
                 window.addEventListener('click', () => {
@@ -161,17 +161,40 @@ export function setupDevtools(app) {
             }
         });
         api.on.getInspectorState((payload) => {
+            const inner = (input, key) => {
+                // if (typeof input[key] !== 'object'){
+                //   payload.state[key].push(
+                //     {
+                //     key: key,
+                //     value: currentState[payload.nodeId][key],
+                //     editable: true
+                //     }
+                //   )
+                // }else{
+                if (currentState[payload.nodeId][key].__v_isRef === true) {
+                    payload.state[key].push({
+                        key: currentState[payload.nodeId][key]._value,
+                        value: currentState[payload.nodeId][key]._value,
+                        editable: true
+                    });
+                }
+                else {
+                    for (const prop in currentState[payload.nodeId][key]) {
+                        payload.state[key].push({
+                            key: prop,
+                            value: currentState[payload.nodeId][key][prop],
+                            editable: true
+                        });
+                    }
+                    // }  
+                }
+            };
             if (payload.inspectorId === inspectorId) {
                 if (currentState[payload.nodeId]) {
                     payload.state = {};
                     for (const key in currentState[payload.nodeId]) {
                         payload.state[key] = [];
-                        for (const prop in currentState[payload.nodeId][key])
-                            payload.state[key].push({
-                                key: prop,
-                                value: currentState[payload.nodeId][key][prop],
-                                editable: true
-                            });
+                        inner(currentState[payload.nodeId], key);
                     }
                 }
             }
@@ -182,7 +205,19 @@ export function setupDevtools(app) {
         api.on.editInspectorState(payload => {
             if (payload.inspectorId === inspectorId) {
                 if (currentState[payload.nodeId]) {
-                    currentState[payload.nodeId][payload.type][payload.path.toString()] = payload.state.value;
+                    console.log('edit payload:', payload);
+                    console.log('edit payload.state.value:', payload.state.value);
+                    if (currentState[payload.nodeId][payload.type].__v_isRef === true) {
+                        console.log("ref is true");
+                        currentState[payload.nodeId][payload.type].value = payload.state.value;
+                    }
+                    if (typeof currentState[payload.nodeId][payload.type] !== 'object') {
+                        console.log('edit:', currentState[payload.nodeId][payload.type]);
+                        currentState[payload.nodeId][payload.type] = payload.state.value;
+                    }
+                    else {
+                        currentState[payload.nodeId][payload.type][payload.path.toString()] = payload.state.value;
+                    }
                     currentToCopy(currentState, copyOfState);
                     devtoolsApi.addTimelineEvent({
                         layerId: timelineLayerId,
@@ -199,6 +234,7 @@ export function setupDevtools(app) {
         });
         //onMounted()
         api.on.inspectComponent((payload, context) => {
+            console.log("payload.instanceData.Array", payload.instanceData.state);
             inspectComponentToInspectorState(payload.instanceData.state);
         });
         api.addTimelineLayer({
