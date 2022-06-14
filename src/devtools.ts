@@ -1,7 +1,7 @@
 import { setupDevtoolsPlugin, DevtoolsPluginApi } from '@vue/devtools-api'
 //import { toRaw } from 'vue-demi';
 import deepCopy from './deepCopy'
-
+//  import { onMounted } from 'vue'
 
 
 /* Plugin Functionality */
@@ -54,7 +54,11 @@ export function setupDevtools(app: any) {
             for (const property in obj.value){
               const types: string[] = Object.values(obj.value[property]).map(el => typeof el)
               if (!types.includes('function')) {
-                currentState[obj.key][property] = obj.value[property]
+                if(obj.value[property].__v_isRef === true){
+                  currentState[obj.key][property] = obj.value[property].value
+                }else{
+                  currentState[obj.key][property] = obj.value[property]
+                }
               }  
             }  
           }
@@ -158,14 +162,18 @@ export function setupDevtools(app: any) {
     app
   }, api => {
 
+    
+
     devtoolsApi = api;
 
     api.addInspector({
       id: inspectorId,
       label: 'Point-Of-Vue!',
       icon: 'visibility',
-    })
-    
+    }, )
+
+    //window.__vdevtools_ctx.currentTab = 'components';
+
     api.on.getInspectorTree((payload, context) => {
       //console.log("getInspectorTree payload:", payload)
       if (payload.inspectorId === inspectorId) {
@@ -181,7 +189,7 @@ export function setupDevtools(app: any) {
 
     api.on.getInspectorState((payload) => {
       //console.log('payload', payload)
-      
+      //console.log('window', window)
       if (payload.inspectorId === inspectorId) {
         if (currentState[payload.nodeId]) {
           payload.state = {};
@@ -235,8 +243,9 @@ export function setupDevtools(app: any) {
         }
       }
     })
-
+    //onMounted()
     api.on.inspectComponent((payload, context) => {
+      //console.log('window', window.__vdevtools_ctx);
       console.log("inspectComponent payload:", payload.instanceData.state);
       inspectComponentToInspectorState(payload.instanceData.state); 
     })
