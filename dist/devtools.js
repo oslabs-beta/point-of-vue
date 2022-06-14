@@ -148,7 +148,7 @@ export function setupDevtools(app) {
         api.addInspector({
             id: inspectorId,
             label: 'Point-Of-Vue!',
-            icon: 'visibility',
+            icon: 'visibility'
         });
         //window.__vdevtools_ctx.currentTab = 'components';
         api.on.getInspectorTree((payload, context) => {
