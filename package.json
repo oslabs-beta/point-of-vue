@@ -1,6 +1,6 @@
 {
   "name": "point-of-vue",
-  "version": "0.1.7",
+  "version": "0.1.8",
   "description": "state devtools for Vue and the Composition API",
   "main": "dist/point-of-vue.cjs.js",
   "repository": "https://github.com/oslabs-beta/point-of-vue",
