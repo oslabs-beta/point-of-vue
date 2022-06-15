@@ -1,0 +1,6 @@
+/node_modules
+yarn.lock
+yarn-errror.log
+package-lock.json
+/dist
+/public

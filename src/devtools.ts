@@ -1,68 +1,68 @@
-import { setupDevtoolsPlugin, DevtoolsPluginApi } from '@vue/devtools-api'
-import { deepCopy, debounce } from './utils'
+import { setupDevtoolsPlugin, DevtoolsPluginApi } from '@vue/devtools-api';
+import { deepCopy, debounce } from './utils';
 
 /* Plugin Functionality */
-export function setupDevtools(app: any) {
-  const stateType: string = 'POV Plugin State'
-  const inspectorId: string = 'point-of-vue-plugin'
-  const timelineLayerId: string = 'pov-state'
-  let currentState: any = {};
-  let copyOfState: any = {};
-  let devtoolsApi: DevtoolsPluginApi<{}>
+function setupDevtools(app: any) {
+  const stateType: string = 'POV Plugin State';
+  const inspectorId: string = 'point-of-vue-plugin';
+  const timelineLayerId: string = 'pov-state';
+  const currentState: any = {};
+  const copyOfState: any = {};
+  let devtoolsApi: DevtoolsPluginApi<{}>;
 
-  let trackId = 0
+  let trackId = 0;
 
-  const groupId = 'group-1'
+  let groupId = 'group-1';
 
   let eventCounter: any = 1;
-  
-  /* Creates a deepy copy of current state and pushes to copyOfState in order to remove reference in memory */
+
+  /* Creates a deep copy of current state, pushes to copyOfState to remove reference in memory */
   const currentToCopy = (current: any, copy: any): void => {
     const temp = deepCopy(current);
-
-    for (const key in temp){
-      if (!copy[key]){
+    const tempKeys = Object.keys(temp);
+    tempKeys.forEach((key) => {
+      if (!copy[key]) {
         copy[key] = [];
       }
-      copy[key].push(temp[key])
-    }
+      copy[key].push(temp[key]);
+    });
   };
 
   /* Pulls corresponding copy of state and assigns it to the event in the timeline */
   const getEventState = (index: number) => {
     const eventState: any = {};
-    for (const key in copyOfState){
+    const copyOfStateKeys = Object.keys(copyOfState);
+    copyOfStateKeys.forEach((key) => {
       eventState[key] = deepCopy(copyOfState[key][index]);
-    }
+    });
+
     return eventState;
   };
 
   /* Grabs the state of the application from the devtools api */
   const getCompState = (): Function => {
-    let hasBeenCalled: boolean = false
+    let hasBeenCalled: boolean = false;
     const inner = (stateArr: any): any => {
-      if (hasBeenCalled === false){
-        hasBeenCalled = true
+      if (hasBeenCalled === false) {
+        hasBeenCalled = true;
         stateArr.forEach((obj: any) => {
           if (obj.type === 'provided') {
-            currentState[obj.key] = {}
-            for (const property in obj.value){
-              const types: string[] = Object.values(obj.value[property]).map(el => typeof el)
+            currentState[obj.key] = {};
+            const objKeys = Object.keys(obj.value);
+            objKeys.forEach((property) => {
+              const types: string[] = Object.values(obj.value[property]).map((el) => typeof el);
               if (!types.includes('function')) {
-                  currentState[obj.key][property] = obj.value[property]
+                currentState[obj.key][property] = obj.value[property];
               }
-            }  
-          }  
-          
-        })
-       
+            });
+          }
+        });
+
         currentToCopy(currentState, copyOfState);
 
         // application changes triger new deep copy of state to be pushed into timeline
         window.addEventListener('click', () => {
-
           currentToCopy(currentState, copyOfState);
-          const groupId = 'group-1'
 
           devtoolsApi.addTimelineEvent({
             layerId: timelineLayerId,
@@ -70,26 +70,23 @@ export function setupDevtools(app: any) {
               time: Date.now(),
               data: getEventState(eventCounter),
               title: `event ${eventCounter}`,
-              groupId
-            }
-          })
+              groupId,
+            },
+          });
           eventCounter += 1;
         });
-        // add debounce
         window.addEventListener('keyup', debounce(() => {
-
           currentToCopy(currentState, copyOfState);
-         
-          
+
           devtoolsApi.addTimelineEvent({
             layerId: timelineLayerId,
             event: {
               time: Date.now(),
               data: getEventState(eventCounter),
               title: `event ${eventCounter}`,
-              groupId
-            }
-          })
+              groupId,
+            },
+          });
           eventCounter += 1;
         }));
 
@@ -98,32 +95,32 @@ export function setupDevtools(app: any) {
           event: {
             time: Date.now(),
             data: getEventState(0),
-            title: `Default State`,
-            groupId
-          }
-        })
+            title: 'Default State',
+            groupId,
+          },
+        });
       }
-    }   
+    };
     return inner;
-  }
-  
+  };
+
   const inspectComponentToInspectorState = getCompState();
 
   const devtools = {
     trackStart: (label: string) => {
-      const groupId = 'track' + trackId++
+      groupId = `track${trackId += 1}`;
 
       devtoolsApi.addTimelineEvent({
         layerId: timelineLayerId,
         event: {
           time: Date.now(),
           data: {
-            label
+            label,
           },
           title: label,
-          groupId
-        }
-      })
+          groupId,
+        },
+      });
 
       return () => {
         devtoolsApi.addTimelineEvent({
@@ -132,15 +129,15 @@ export function setupDevtools(app: any) {
             time: Date.now(),
             data: {
               label,
-              done: true
+              done: true,
             },
             title: label,
-            groupId
-          }
-        })
-      }
-    }
-  }
+            groupId,
+          },
+        });
+      };
+    },
+  };
 
   setupDevtoolsPlugin({
     id: 'point-of-vue-plugin',
@@ -149,91 +146,81 @@ export function setupDevtools(app: any) {
     homepage: 'https://vuejs.org',
     componentStateTypes: [stateType],
     enableEarlyProxy: true,
-    app
-  }, api => {
-
-    
-
+    app,
+  }, (api) => {
     devtoolsApi = api;
 
     api.addInspector({
       id: inspectorId,
       label: 'Point-Of-Vue!',
       icon: 'visibility',
-    }, )
+    });
 
-    api.on.getInspectorTree((payload, context) => {
+    api.on.getInspectorTree((payload) => {
       if (payload.inspectorId === inspectorId) {
         payload.rootNodes = [];
-        for (const key in currentState){
+
+        Object.keys(currentState).forEach((key) => {
           payload.rootNodes.push({
             id: `${key}`,
-            label: `${key}`
-          })
-        }
+            label: `${key}`,
+          });
+        });
       }
-    })
+    });
 
-    api.on.getInspectorState((payload) => {     
+    api.on.getInspectorState((payload) => {
       const currentToInspector = (input: any, key: any, property = key) => {
-       
-        if (input[key].__v_isRef === true){
+        if (input[key].__v_isRef === true) {
           payload.state[property].push(
             {
-            key: input[key]._value,
-            value: input[key]._value,
-            editable: true
-            }
-          )
+              key: input[key]._value,
+              value: input[key]._value,
+              editable: true,
+            },
+          );
         } else {
-          for (const prop in input[key]){
-            
-              payload.state[property].push(
-                {
+          const inputKeyKeys = Object.keys(input[key]);
+          inputKeyKeys.forEach((prop) => {
+            payload.state[property].push(
+              {
                 key: prop,
                 value: input[key][prop],
-                editable: true
-                }
-              )
-          }
-          
+                editable: true,
+              },
+            );
+          });
         }
-       
-        //}
-      }
+
+        // }
+      };
       if (payload.inspectorId === inspectorId) {
         if (currentState[payload.nodeId]) {
           payload.state = {};
-           
-          for (const key in currentState[payload.nodeId]){
+          const currentStatePayloadKeys = Object.keys(currentState[payload.nodeId]);
+          currentStatePayloadKeys.forEach((key) => {
             payload.state[key] = [];
-            currentToInspector(currentState[payload.nodeId], key); 
-          }  
+            currentToInspector(currentState[payload.nodeId], key);
+          });
         }
-      }    
-            
-    
-    })
+      }
+    });
 
     setInterval(() => {
-      api.sendInspectorTree(inspectorId)
-    }, 500)
+      api.sendInspectorTree(inspectorId);
+    }, 500);
 
-    api.on.editInspectorState(payload => {
-      
-          const inspectorStateToCurrent = (input: any) =>{
-            if(input.__v_isRef === true){
-              input.value = payload.state.value;
-            } else {
-              input[payload.path.toString()] = payload.state.value;
-            }
-          }
+    api.on.editInspectorState((payload) => {
+      const inspectorStateToCurrent = (input: any) => {
+        if (input.__v_isRef === true) {
+          input.value = payload.state.value;
+        } else {
+          input[payload.path.toString()] = payload.state.value;
+        }
+      };
       if (payload.inspectorId === inspectorId) {
-        if(currentState[payload.nodeId]){
-         
-          inspectorStateToCurrent(currentState[payload.nodeId][payload.type])
-          
-          
+        if (currentState[payload.nodeId]) {
+          inspectorStateToCurrent(currentState[payload.nodeId][payload.type]);
           currentToCopy(currentState, copyOfState);
 
           devtoolsApi.addTimelineEvent({
@@ -242,25 +229,25 @@ export function setupDevtools(app: any) {
               time: Date.now(),
               data: getEventState(eventCounter),
               title: `event ${eventCounter}`,
-              groupId
-            }
-          });  
+              groupId,
+            },
+          });
           eventCounter += 1;
         }
       }
-    })
-    
-    api.on.inspectComponent((payload, context) => {
-      inspectComponentToInspectorState(payload.instanceData.state); 
-    })
+    });
+    api.on.inspectComponent((payload) => {
+      inspectComponentToInspectorState(payload.instanceData.state);
+    });
 
     api.addTimelineLayer({
       id: timelineLayerId,
       color: 0xff984f,
-      label: 'Point-Of-Vue'
-    })
+      label: 'Point-Of-Vue',
+    });
+  });
 
-  })
+  return devtools;
+}
 
-  return devtools
-};
+export default setupDevtools;

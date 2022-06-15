@@ -1,32 +1,34 @@
 import { setupDevtoolsPlugin } from '@vue/devtools-api';
 import { deepCopy, debounce } from './utils';
 /* Plugin Functionality */
-export function setupDevtools(app) {
+function setupDevtools(app) {
     const stateType = 'POV Plugin State';
     const inspectorId = 'point-of-vue-plugin';
     const timelineLayerId = 'pov-state';
-    let currentState = {};
-    let copyOfState = {};
+    const currentState = {};
+    const copyOfState = {};
     let devtoolsApi;
     let trackId = 0;
-    const groupId = 'group-1';
+    let groupId = 'group-1';
     let eventCounter = 1;
-    /* Creates a deepy copy of current state and pushes to copyOfState in order to remove reference in memory */
+    /* Creates a deep copy of current state, pushes to copyOfState to remove reference in memory */
     const currentToCopy = (current, copy) => {
         const temp = deepCopy(current);
-        for (const key in temp) {
+        const tempKeys = Object.keys(temp);
+        tempKeys.forEach((key) => {
             if (!copy[key]) {
                 copy[key] = [];
             }
             copy[key].push(temp[key]);
-        }
+        });
     };
     /* Pulls corresponding copy of state and assigns it to the event in the timeline */
     const getEventState = (index) => {
         const eventState = {};
-        for (const key in copyOfState) {
+        const copyOfStateKeys = Object.keys(copyOfState);
+        copyOfStateKeys.forEach((key) => {
             eventState[key] = deepCopy(copyOfState[key][index]);
-        }
+        });
         return eventState;
     };
     /* Grabs the state of the application from the devtools api */
@@ -38,31 +40,30 @@ export function setupDevtools(app) {
                 stateArr.forEach((obj) => {
                     if (obj.type === 'provided') {
                         currentState[obj.key] = {};
-                        for (const property in obj.value) {
-                            const types = Object.values(obj.value[property]).map(el => typeof el);
+                        const objKeys = Object.keys(obj.value);
+                        objKeys.forEach((property) => {
+                            const types = Object.values(obj.value[property]).map((el) => typeof el);
                             if (!types.includes('function')) {
                                 currentState[obj.key][property] = obj.value[property];
                             }
-                        }
+                        });
                     }
                 });
                 currentToCopy(currentState, copyOfState);
                 // application changes triger new deep copy of state to be pushed into timeline
                 window.addEventListener('click', () => {
                     currentToCopy(currentState, copyOfState);
-                    const groupId = 'group-1';
                     devtoolsApi.addTimelineEvent({
                         layerId: timelineLayerId,
                         event: {
                             time: Date.now(),
                             data: getEventState(eventCounter),
                             title: `event ${eventCounter}`,
-                            groupId
-                        }
+                            groupId,
+                        },
                     });
                     eventCounter += 1;
                 });
-                // add debounce
                 window.addEventListener('keyup', debounce(() => {
                     currentToCopy(currentState, copyOfState);
                     devtoolsApi.addTimelineEvent({
@@ -71,8 +72,8 @@ export function setupDevtools(app) {
                             time: Date.now(),
                             data: getEventState(eventCounter),
                             title: `event ${eventCounter}`,
-                            groupId
-                        }
+                            groupId,
+                        },
                     });
                     eventCounter += 1;
                 }));
@@ -81,9 +82,9 @@ export function setupDevtools(app) {
                     event: {
                         time: Date.now(),
                         data: getEventState(0),
-                        title: `Default State`,
-                        groupId
-                    }
+                        title: 'Default State',
+                        groupId,
+                    },
                 });
             }
         };
@@ -92,17 +93,17 @@ export function setupDevtools(app) {
     const inspectComponentToInspectorState = getCompState();
     const devtools = {
         trackStart: (label) => {
-            const groupId = 'track' + trackId++;
+            groupId = `track${trackId += 1}`;
             devtoolsApi.addTimelineEvent({
                 layerId: timelineLayerId,
                 event: {
                     time: Date.now(),
                     data: {
-                        label
+                        label,
                     },
                     title: label,
-                    groupId
-                }
+                    groupId,
+                },
             });
             return () => {
                 devtoolsApi.addTimelineEvent({
@@ -111,14 +112,14 @@ export function setupDevtools(app) {
                         time: Date.now(),
                         data: {
                             label,
-                            done: true
+                            done: true,
                         },
                         title: label,
-                        groupId
-                    }
+                        groupId,
+                    },
                 });
             };
-        }
+        },
     };
     setupDevtoolsPlugin({
         id: 'point-of-vue-plugin',
@@ -127,23 +128,23 @@ export function setupDevtools(app) {
         homepage: 'https://vuejs.org',
         componentStateTypes: [stateType],
         enableEarlyProxy: true,
-        app
-    }, api => {
+        app,
+    }, (api) => {
         devtoolsApi = api;
         api.addInspector({
             id: inspectorId,
             label: 'Point-Of-Vue!',
             icon: 'visibility',
         });
-        api.on.getInspectorTree((payload, context) => {
+        api.on.getInspectorTree((payload) => {
             if (payload.inspectorId === inspectorId) {
                 payload.rootNodes = [];
-                for (const key in currentState) {
+                Object.keys(currentState).forEach((key) => {
                     payload.rootNodes.push({
                         id: `${key}`,
-                        label: `${key}`
+                        label: `${key}`,
                     });
-                }
+                });
             }
         });
         api.on.getInspectorState((payload) => {
@@ -152,34 +153,36 @@ export function setupDevtools(app) {
                     payload.state[property].push({
                         key: input[key]._value,
                         value: input[key]._value,
-                        editable: true
+                        editable: true,
                     });
                 }
                 else {
-                    for (const prop in input[key]) {
+                    const inputKeyKeys = Object.keys(input[key]);
+                    inputKeyKeys.forEach((prop) => {
                         payload.state[property].push({
                             key: prop,
                             value: input[key][prop],
-                            editable: true
+                            editable: true,
                         });
-                    }
+                    });
                 }
-                //}
+                // }
             };
             if (payload.inspectorId === inspectorId) {
                 if (currentState[payload.nodeId]) {
                     payload.state = {};
-                    for (const key in currentState[payload.nodeId]) {
+                    const currentStatePayloadKeys = Object.keys(currentState[payload.nodeId]);
+                    currentStatePayloadKeys.forEach((key) => {
                         payload.state[key] = [];
                         currentToInspector(currentState[payload.nodeId], key);
-                    }
+                    });
                 }
             }
         });
         setInterval(() => {
             api.sendInspectorTree(inspectorId);
         }, 500);
-        api.on.editInspectorState(payload => {
+        api.on.editInspectorState((payload) => {
             const inspectorStateToCurrent = (input) => {
                 if (input.__v_isRef === true) {
                     input.value = payload.state.value;
@@ -198,22 +201,22 @@ export function setupDevtools(app) {
                             time: Date.now(),
                             data: getEventState(eventCounter),
                             title: `event ${eventCounter}`,
-                            groupId
-                        }
+                            groupId,
+                        },
                     });
                     eventCounter += 1;
                 }
             }
         });
-        api.on.inspectComponent((payload, context) => {
+        api.on.inspectComponent((payload) => {
             inspectComponentToInspectorState(payload.instanceData.state);
         });
         api.addTimelineLayer({
             id: timelineLayerId,
             color: 0xff984f,
-            label: 'Point-Of-Vue'
+            label: 'Point-Of-Vue',
         });
     });
     return devtools;
 }
-;
+export default setupDevtools;

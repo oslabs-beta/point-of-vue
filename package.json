@@ -1,6 +1,6 @@
 {
   "name": "point-of-vue",
-  "version": "0.1.8",
+  "version": "1.0.0",
   "description": "state devtools for Vue and the Composition API",
   "main": "dist/point-of-vue.cjs.js",
   "repository": "https://github.com/oslabs-beta/point-of-vue",
@@ -29,7 +29,8 @@
     "start": "serve public",
     "devtsc": "tsc --watch -d",
     "build:esbuild": "rimraf dist && tsc -d --emitDeclarationOnly && node ./esbuild.js",
-    "build:rollup": "rimraf dist && rollup -c rollup.config.js"
+    "build:rollup": "rimraf dist && rollup -c rollup.config.js",
+    "lint": "eslint ./"
   },
   "dependencies": {
     "@rollup/plugin-typescript": "^8.3.2",
@@ -54,10 +55,17 @@
     "@rollup/plugin-node-resolve": "^13.3.0",
     "@rollup/plugin-replace": "^4.0.0",
     "@types/node": "17.0.36",
+    "@typescript-eslint/eslint-plugin": "^5.28.0",
+    "@typescript-eslint/parser": "^5.28.0",
     "@vue/compiler-sfc": "3.2.36",
     "@vue/test-utils": "^2.0.0-rc.21",
     "esbuild": "0.14.42",
     "esbuild-plugin-vue": "0.2.4",
+    "eslint": "^8.17.0",
+    "eslint-config-airbnb-base": "^15.0.0",
+    "eslint-config-airbnb-typescript": "^17.0.0",
+    "eslint-plugin-import": "^2.26.0",
+    "eslint-plugin-vue": "^9.1.1",
     "npm-run-all": "^4.1.5",
     "pascalcase": "^2.0.0",
     "rimraf": "^3.0.2",

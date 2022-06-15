@@ -10,11 +10,10 @@ const debounce = (fn, timeout = 600) => {
 const deepCopy = (input) => {
     if (typeof input !== 'object')
         return input;
-    let copy = new input.constructor();
-    for (const key in input) {
-        const element = input[key];
-        copy[key] = deepCopy(element);
-    }
+    const copy = new input.constructor();
+    Object.keys(input).forEach((el) => {
+        copy[el] = deepCopy(input[el]);
+    });
     return copy;
 };
-export { debounce, deepCopy };
+export { debounce, deepCopy, };
