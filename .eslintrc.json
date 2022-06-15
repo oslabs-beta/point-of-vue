@@ -1,0 +1,25 @@
+{
+    "env": {
+        "browser": true,
+        "es2021": true
+    },
+    "extends": [
+        "plugin:vue/essential",
+        "airbnb-base",
+        "airbnb-typescript/base"
+    ],
+    "parserOptions": {
+        "ecmaVersion": "latest",
+        "parser": "@typescript-eslint/parser",
+        "sourceType": "module",
+        "project": ["./tsconfig.json", "./esbuild.js"]
+    },
+    "plugins": [
+        "vue",
+        "@typescript-eslint"
+    ],
+    "rules": {
+        "no-underscore-dangle": 0,
+        "no-param-reassign": 0
+    }
+}

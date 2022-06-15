@@ -1,34 +1,9 @@
 import resolve from '@rollup/plugin-node-resolve';
 import commonjs from '@rollup/plugin-commonjs';
-// import { terser } from 'rollup-plugin-terser';
-// import path from 'path';
 import vuePlugin from 'rollup-plugin-vue';
 import ts from 'rollup-plugin-typescript2';
 import replace from '@rollup/plugin-replace';
 import path from 'path';
-
-// `npm run build` -> `production` is true
-// `npm run dev` -> `production` is false
-// const production = !process.env.ROLLUP_WATCH;
-// || __VUE_PROD_DEVTOOLS__
-// if (process.env.NODE_ENV === 'development' || __VUE_PROD_DEVTOOLS__) {
-//   setupDevtools(app);
-// }
-
-// export default {
-//   input: 'src/main.js',
-//   output: {
-//     file: 'public/bundle.js',
-//     format: 'iife', // immediately-invoked function expression — suitable for <script> tags
-//     sourcemap: true,
-//   },
-//   plugins: [
-//     resolve(), // tells Rollup how to find date-fns in node_modules
-//     commonjs(), // converts date-fns to ES modules
-//     production && terser(), // minify, but only in production
-//     // css({output: 'bundle.css'})
-//   ],
-// };
 
 const pkg = require('./package.json');
 const name = pkg.name;
@@ -105,14 +80,13 @@ function createConfig(format, output, plugins = []) {
   output.externalLiveBindings = false;
   output.globals = { vue: 'Vue', '@vue/composition-api': 'vueCompositionApi' };
   output.extend = true;
-// output.extdent = true added after error stating point-of-vue was not a legal JS identifier
+
   const isProductionBuild = /\.prod\.js$/.test(output.file);
   const isGlobalBuild = format === 'global';
   const isRawESMBuild = format === 'esm';
   const isNodeBuild = format === 'cjs';
   const isBundlerESMBuild = /esm-bundler/.test(format);
-  // ouputname was set .namet
-  // we might possiblo invocation of pascalcase(pkg)
+
   if (isGlobalBuild) output.name = pkg.name;
 
   const shouldEmitDeclarations = !hasTSChecked;

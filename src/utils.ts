@@ -4,7 +4,7 @@ const debounce = (fn:Function, timeout:number = 600) => {
 
   return (...args:any):void => {
     clearTimeout(timer);
-    timer = setTimeout(() => { fn.apply(this, args);}, timeout);
+    timer = setTimeout(() => { fn.apply(this, args); }, timeout);
   };
 };
 
@@ -12,16 +12,16 @@ const debounce = (fn:Function, timeout:number = 600) => {
 const deepCopy = (input:any):any => {
   if (typeof input !== 'object') return input;
 
-  let copy = new input.constructor();
+  const copy = new input.constructor();
 
-  for (const key in input) {
-    const element = input[key];
-    copy[key] = deepCopy(element);
-  }
+  Object.keys(input).forEach((el) => {
+    copy[el] = deepCopy(input[el]);
+  });
+
   return copy;
 };
 
 export {
   debounce,
-  deepCopy
+  deepCopy,
 };

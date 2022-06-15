@@ -1,3 +1,4 @@
-export declare function setupDevtools(app: any): {
+declare function setupDevtools(app: any): {
     trackStart: (label: string) => () => void;
 };
+export default setupDevtools;
