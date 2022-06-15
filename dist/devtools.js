@@ -1,13 +1,5 @@
 import { setupDevtoolsPlugin } from '@vue/devtools-api';
-import deepCopy from './deepCopy';
-/* Debounce function */
-const debounce = (fn, timeout = 500) => {
-    let timer;
-    return (...args) => {
-        clearTimeout(timer);
-        timer = setTimeout(() => { fn.apply(this, args); }, timeout);
-    };
-};
+import { deepCopy, debounce } from './utils';
 /* Plugin Functionality */
 export function setupDevtools(app) {
     const stateType = 'POV Plugin State';

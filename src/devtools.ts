@@ -1,15 +1,5 @@
 import { setupDevtoolsPlugin, DevtoolsPluginApi } from '@vue/devtools-api'
-import deepCopy from './deepCopy'
-
-  /* Debounce function */
-  const debounce = (fn:Function, timeout:number = 500) => {
-    let timer:any;
-  
-    return (...args:any):void => {
-      clearTimeout(timer);
-      timer = setTimeout(() => { fn.apply(this, args);}, timeout);
-    };
-  };
+import { deepCopy, debounce } from './utils'
 
 /* Plugin Functionality */
 export function setupDevtools(app: any) {
