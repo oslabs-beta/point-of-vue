@@ -8,7 +8,7 @@
 * Provides a time-line of all previous states for time-travel debugging
 * In-browser editing for edge-case testing
 
-[Homepage](povjs.com) |
+[Homepage](https://povjs.com/index.html) |
 [NPM](https://www.npmjs.com/package/point-of-vue)
 
 # Install with Yarn or NPM
